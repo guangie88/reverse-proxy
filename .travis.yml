@@ -8,17 +8,47 @@ matrix:
   include:
   - services: docker
     env:
-    - NGINX_TAG=1.15-alpine
+    - VERSION_TAG=0.1.0
+    - NGINX_VERSION=1.15
+    - DIST=alpine
 
 script:
+- # Form all individual tags
+- NGINX_VERSION_TAG=nginx-${NGINX_VERSION}
+- DIST_TAG=${DIST}
+
+# Build the image
 - docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
-- FULL_IMAGE_NAME="${IMAGE_NAME}:${NGINX_TAG}"
+- FULL_TAG="${VERSION_TAG}_${NGINX_VERSION_TAG}_${DIST_TAG}"
 - |-
-  docker build . -t ${FULL_IMAGE_NAME} \
-    --build-arg NGINX_TAG=${NGINX_TAG} \
+  docker build . -t "${IMAGE_NAME}:${FULL_TAG}" \
+    --build-arg NGINX_IMAGE_TAG="${NGINX_VERSION}-${DIST}" \
     ;
 # Just push, doesn't matter if it's TRAVIS_PULL_REQUEST false/true
-- docker push ${FULL_IMAGE_NAME}
+- docker push "${IMAGE_NAME}:${FULL_TAG}"
+
+# 3-choose-2 tags
+- VERSION_NGINX_VERSION_ONLY_TAG=${VERSION_TAG}_${NGINX_VERSION_TAG}
+- docker tag "${IMAGE_NAME}:${FULL_TAG}" "${IMAGE_NAME}:${VERSION_NGINX_VERSION_ONLY_TAG}"
+- docker push "${IMAGE_NAME}:${VERSION_NGINX_VERSION_ONLY_TAG}"
+
+- VERSION_DIST_ONLY_TAG=${VERSION_TAG}_${DIST_TAG}
+- docker tag "${IMAGE_NAME}:${FULL_TAG}" "${IMAGE_NAME}:${VERSION_DIST_ONLY_TAG}"
+- docker push "${IMAGE_NAME}:${VERSION_DIST_ONLY_TAG}"
+
+- NGINX_VERSION_DIST_ONLY_TAG=${NGINX_VERSION_TAG}_${DIST_TAG}
+- docker tag "${IMAGE_NAME}:${FULL_TAG}" "${IMAGE_NAME}:${NGINX_VERSION_DIST_ONLY_TAG}"
+- docker push "${IMAGE_NAME}:${NGINX_VERSION_DIST_ONLY_TAG}"
+
+# 3-choose-1 tags
+- docker tag "${IMAGE_NAME}:${FULL_TAG}" "${IMAGE_NAME}:${VERSION_TAG}"
+- docker push "${IMAGE_NAME}:${VERSION_TAG}"
+
+- docker tag "${IMAGE_NAME}:${FULL_TAG}" "${IMAGE_NAME}:${NGINX_VERSION_TAG}"
+- docker push "${IMAGE_NAME}:${NGINX_VERSION_TAG}"
+
+- docker tag "${IMAGE_NAME}:${FULL_TAG}" "${IMAGE_NAME}:${DIST_TAG}"
+- docker push "${IMAGE_NAME}:${DIST_TAG}"
 
 branches:
   only:
