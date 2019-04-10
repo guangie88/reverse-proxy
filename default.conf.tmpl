@@ -1,0 +1,10 @@
+server {
+    listen {{ LISTENING_ADDR }};
+    server_name {{ SERVER_NAME }};
+
+    location / {
+        proxy_pass       {{ PROXY_PASS_URL }};
+        proxy_redirect   off;
+        proxy_set_header Host $host;
+    }
+}

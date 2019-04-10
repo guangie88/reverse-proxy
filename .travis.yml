@@ -1,0 +1,25 @@
+language: bash
+
+env:
+  global:
+  - IMAGE_NAME=${DOCKER_USERNAME}/reverse-proxy
+
+matrix:
+  include:
+  - services: docker
+    env:
+    - NGINX_TAG=1.15-alpine
+
+script:
+- docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
+- FULL_IMAGE_NAME="${IMAGE_NAME}:${NGINX_TAG}"
+- |-
+  docker build . -t ${FULL_IMAGE_NAME} \
+    --build-arg NGINX_TAG=${NGINX_TAG} \
+    ;
+# Just push, doesn't matter if it's TRAVIS_PULL_REQUEST false/true
+- docker push ${FULL_IMAGE_NAME}
+
+branches:
+  only:
+  - master
