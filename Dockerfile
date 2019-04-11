@@ -7,7 +7,13 @@ ARG ENVJA_VERSION=0.2.0
 # User should be overriding this to make sense
 ENV LISTENING_PORT 8080
 ENV SERVER_NAME localhost
+ENV LOCATION "/"
 ENV PROXY_PASS_URL http://localhost:9090/
+
+# Good presets, setting the env var to empty string will remove the setting of header for that field
+ENV PROXY_SET_HEADER_REFERER "proxy_set_header Referer \$http_referer;"
+ENV PROXY_SET_HEADER_X_FORWARDED_FOR "proxy_set_header X-Forwarded-For \$remote_addr;"
+ENV PROXY_SET_HEADER_X_FORWARDED_PROTO "proxy_set_header X-Forwarded-Proto \$scheme;"
 
 # Set to false to just use the pre-applied default.conf
 # Useful for environment that doesn't easily allow read-write volume at runtime

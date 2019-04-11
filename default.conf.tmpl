@@ -2,11 +2,13 @@ server {
     listen {{ LISTENING_PORT }};
     server_name {{ SERVER_NAME }};
 
-    location / {
+    location {{ LOCATION }} {
         proxy_pass       {{ PROXY_PASS_URL }};
-        proxy_set_header Host $host;
-        proxy_set_header Referer $http_referer;
-        proxy_set_header X-Forwarded-For $remote_addr;
-        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Defaults to proxy_set_header Host $proxy_host when unset
+        {% if PROXY_SET_HEADER_HOST %}{{ PROXY_SET_HEADER_HOST }}{% endif %}
+        {% if PROXY_SET_HEADER_REFERER %}{{ PROXY_SET_HEADER_REFERER }}{% endif %}
+        {% if PROXY_SET_HEADER_X_FORWARDED_FOR %}{{ PROXY_SET_HEADER_X_FORWARDED_FOR }}{% endif %}
+        {% if PROXY_SET_HEADER_X_FORWARDED_PROTO %}{{ PROXY_SET_HEADER_X_FORWARDED_PROTO }}{% endif %}
     }
 }
