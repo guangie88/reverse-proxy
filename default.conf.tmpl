@@ -1,14 +1,27 @@
 server {
-    listen {{ LISTENING_PORT }};
-    server_name {{ SERVER_NAME }};
+    listen      {{ c.LISTENING_PORT }};
+    server_name {{ c.SERVER_NAME }};
+    gzip        {{ c.USE_GZIP }};
 
-    location {{ LOCATION }} {
-        proxy_pass       {{ PROXY_PASS_URL }};
+    {% if c.LOCATION_BLOCKS %}{% for blk in c.LOCATION_BLOCKS %}
+    location {{ blk.LOCATION }} {
+        proxy_pass {{ blk.PROXY_PASS_URL }};
 
         # Defaults to proxy_set_header Host $proxy_host when unset
-        {% if PROXY_SET_HEADER_HOST %}{{ PROXY_SET_HEADER_HOST }}{% endif %}
-        {% if PROXY_SET_HEADER_REFERER %}{{ PROXY_SET_HEADER_REFERER }}{% endif %}
-        {% if PROXY_SET_HEADER_X_FORWARDED_FOR %}{{ PROXY_SET_HEADER_X_FORWARDED_FOR }}{% endif %}
-        {% if PROXY_SET_HEADER_X_FORWARDED_PROTO %}{{ PROXY_SET_HEADER_X_FORWARDED_PROTO }}{% endif %}
+        {% if blk.PROXY_SET_HEADER_HOST %}proxy_set_header Host {{ blk.PROXY_SET_HEADER_HOST }};{% endif %}
+        {% if blk.PROXY_SET_HEADER_REFERER %}proxy_set_header Referer {{ blk.PROXY_SET_HEADER_REFERER }};{% endif %}
+        {% if blk.PROXY_SET_HEADER_X_FORWARDED_FOR %}proxy_set_header X-Forwarded-For {{ blk.PROXY_SET_HEADER_X_FORWARDED_FOR }};{% endif %}
+        {% if blk.PROXY_SET_HEADER_X_FORWARDED_PROTO %}proxy_set_header X-Forwarded-Proto {{ blk.PROXY_SET_HEADER_X_FORWARDED_PROTO }};{% endif %}
     }
+    {% endfor %}{% else %}
+    location {{ c.LOCATION }} {
+        proxy_pass {{ c.PROXY_PASS_URL }};
+
+        # Defaults to proxy_set_header Host $proxy_host when unset
+        {% if c.PROXY_SET_HEADER_HOST %}proxy_set_header Host {{ c.PROXY_SET_HEADER_HOST }};{% endif %}
+        {% if c.PROXY_SET_HEADER_REFERER %}proxy_set_header Referer {{ c.PROXY_SET_HEADER_REFERER }};{% endif %}
+        {% if c.PROXY_SET_HEADER_X_FORWARDED_FOR %}proxy_set_header X-Forwarded-For {{ c.PROXY_SET_HEADER_X_FORWARDED_FOR }};{% endif %}
+        {% if c.PROXY_SET_HEADER_X_FORWARDED_PROTO %}proxy_set_header X-Forwarded-Proto {{ c.PROXY_SET_HEADER_X_FORWARDED_PROTO }};{% endif %}
+    }
+    {% endif %}
 }

@@ -1,0 +1,17 @@
+LISTENING_PORT = 8080
+SERVER_NAME = "localhost"
+USE_GZIP = "off"
+
+[[LOCATION_BLOCKS]]
+LOCATION = "/"
+PROXY_PASS_URL = "http://localhost:9090/"
+PROXY_SET_HEADER_REFERER = "$http_referer"
+PROXY_SET_HEADER_X_FORWARDED_FOR = "$remote_addr"
+PROXY_SET_HEADER_X_FORWARDED_PROTO = "$scheme"
+
+[[LOCATION_BLOCKS]]
+LOCATION = "/sub/"
+PROXY_PASS_URL = "http://localhost:9091/"
+PROXY_SET_HEADER_REFERER = "$http_referer"
+PROXY_SET_HEADER_X_FORWARDED_FOR = "$remote_addr"
+PROXY_SET_HEADER_X_FORWARDED_PROTO = "$scheme"

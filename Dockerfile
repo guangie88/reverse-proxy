@@ -1,19 +1,21 @@
 ARG NGINX_IMAGE_TAG
 FROM nginxinc/nginx-unprivileged:${NGINX_IMAGE_TAG}
 
-ARG ENVJA_VERSION=0.2.0
+ARG TERA_CLI_VERSION=0.1.0
 
 # Some default env vars that reverse proxies 8080 -> 9090
 # User should be overriding this to make sense
 ENV LISTENING_PORT 8080
 ENV SERVER_NAME localhost
+ENV USE_GZIP off
+
 ENV LOCATION "/"
 ENV PROXY_PASS_URL http://localhost:9090/
 
 # Good presets, setting the env var to empty string will remove the setting of header for that field
-ENV PROXY_SET_HEADER_REFERER "proxy_set_header Referer \$http_referer;"
-ENV PROXY_SET_HEADER_X_FORWARDED_FOR "proxy_set_header X-Forwarded-For \$remote_addr;"
-ENV PROXY_SET_HEADER_X_FORWARDED_PROTO "proxy_set_header X-Forwarded-Proto \$scheme;"
+ENV PROXY_SET_HEADER_REFERER "\$http_referer"
+ENV PROXY_SET_HEADER_X_FORWARDED_FOR "\$remote_addr"
+ENV PROXY_SET_HEADER_X_FORWARDED_PROTO "\$scheme"
 
 # Set to false to just use the pre-applied default.conf
 # Useful for environment that doesn't easily allow read-write volume at runtime
@@ -40,15 +42,15 @@ RUN set -euo pipefail && \
     mkdir -p nginx/conf.d; \
     mkdir -p .bin/; \
     cd .bin/; \
-    wget https://github.com/guangie88/envja/releases/download/v${ENVJA_VERSION}/envja_linux_amd64; \
-    mv envja_linux_amd64 envja; \
-    chmod +x envja; \
+    wget https://github.com/guangie88/tera-cli/releases/download/v${TERA_CLI_VERSION}/tera_linux_amd64; \
+    mv tera_linux_amd64 tera; \
+    chmod +x tera; \
     :
 
 ENV PATH=${PATH}:${HOME}/.bin
 
 COPY ./default.conf.tmpl ${HOME}/nginx/conf.d/
 COPY ./run.sh ${HOME}/
-RUN envja file ${HOME}/nginx/conf.d/default.conf.tmpl > ${HOME}/nginx/conf.d/default.conf
+RUN tera -f ${HOME}/nginx/conf.d/default.conf.tmpl --env > ${HOME}/nginx/conf.d/default.conf
 
 CMD ["./run.sh"]
