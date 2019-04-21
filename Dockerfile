@@ -35,11 +35,13 @@ USER 1001
 
 ENV HOME /home/1001
 WORKDIR ${HOME}
+ENV NGINX_CONF_DIR=${HOME}/nginx/conf.d
+ENV NGINX_CONF_TMPL_DIR=${HOME}/nginx/conf.tmpl.d
 
 # There is no choice but to use /tmp because the docker image doesn't have a
 # home directory to write into
 RUN set -euo pipefail && \
-    mkdir -p nginx/conf.d; \
+    mkdir -p ${NGINX_CONF_DIR}; \
     mkdir -p .bin/; \
     cd .bin/; \
     wget https://github.com/guangie88/tera-cli/releases/download/v${TERA_CLI_VERSION}/tera_linux_amd64; \
@@ -49,8 +51,8 @@ RUN set -euo pipefail && \
 
 ENV PATH=${PATH}:${HOME}/.bin
 
-COPY ./default.conf.tmpl ${HOME}/nginx/conf.d/
+COPY ./default.conf.tmpl ${NGINX_CONF_TMPL_DIR}/
 COPY ./run.sh ${HOME}/
-RUN tera -f ${HOME}/nginx/conf.d/default.conf.tmpl --env > ${HOME}/nginx/conf.d/default.conf
+RUN tera -f ${NGINX_CONF_TMPL_DIR}/default.conf.tmpl --env > ${NGINX_CONF_DIR}/default.conf
 
 CMD ["./run.sh"]

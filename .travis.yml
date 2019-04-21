@@ -8,7 +8,7 @@ matrix:
   include:
   - services: docker
     env:
-    - VERSION_TAG=0.4.0
+    - VERSION_TAG=0.5.0
     - NGINX_VERSION=1.15
     - DIST=alpine
 

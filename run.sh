@@ -15,8 +15,8 @@ if [[ "${APPLY_TEMPLATE}" = "true" ]]; then
         TERA_CONTEXT="--env"
     fi
 
-    tera -f ${HOME}/nginx/conf.d/default.conf.tmpl ${TERA_CONTEXT} \
-        > ${HOME}/nginx/conf.d/default.conf
+    tera -f ${NGINX_CONF_TMPL_DIR}/default.conf.tmpl ${TERA_CONTEXT} \
+        > ${NGINX_CONF_DIR}/default.conf
 fi
 
 exec nginx -g "daemon off;"

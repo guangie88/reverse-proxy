@@ -7,9 +7,12 @@ This uses
 order to make it more usable in various deployments.
 
 Note that this Docker image changes the base image such that it has a default
-`HOME` directory. The default include glob `/etc/nginx/conf.d/*.conf` has been
-removed, and is instead replaced with glob pattern
-`${HOME}/nginx/conf.d/*.conf` for including new `nginx` conf files.
+`HOME` directory, and additionally `NGINX_CONF_DIR` and `NGINX_CONF_TMPL_DIR`,
+which holds the NGINX configuration directory and template directory.
+
+The default include glob `/etc/nginx/conf.d/*.conf` has been
+removed, and is instead replaced with glob pattern `${NGINX_CONF_DIR}/*.conf`
+for including new `nginx` conf files.
 
 It is also possible to create reverse proxy for multiple locations, but this
 would require use of configuration file instead of just environment variables
@@ -68,7 +71,7 @@ This section pertains to the `location` block in NGINX configuration.
     Defaults to `"$scheme"`
 
 Again, the start-up script is set to run
-`${HOME}/nginx/conf.d/default.conf.tmpl > ${HOME}/nginx/conf.d/default.conf`
+`${NGINX_CONF_TMPL_DIR}/default.conf.tmpl > ${NGINX_CONF_DIR}/default.conf`
 unless `APPLY_TEMPLATE` is set to `"false"`.
 
 ## Advanced Section
